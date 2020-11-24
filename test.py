@@ -7,6 +7,7 @@ This file is using the Hopfield Nerual Network to solve the TSP problem
 
 import numpy as np
 import matplotlib.pyplot as plt
+import change2vrp
 
 # 计算距离矩阵
 def Distance(Data):
@@ -192,16 +193,19 @@ def Plot(Route, Data):
 
 # 主函数
 # 客户点的坐标，第一个是仓库
-client = 5
-Data1 =np.random.randint(5,size=(client,2))
+client = 7
+Data1 = np.random.randint(5,size=(client,2))
 # 起点坐标
 Data2 = np.mat([[1, 2]])
-# 车辆数
-vichels = 3
-Data3 = Data2
-for i in range(vichels-1):
-    Data3 = np.r_[Data3,Data2]
-Data = np.r_[Data3,Data1]
+# 数据
+Data = np.r_[Data2,Data1]
+# 客户需求
+need = [0,2,1,2,1,2,1,2]
+nodeneedarray = []
+for i in range(client+1):
+    nodeneedarray.append(change2vrp.nodeneed(i, need[i]))
+# 车容量
+cap = 4
 
 # 参数初始化
 Dis = Distance(Data)
@@ -238,7 +242,7 @@ for r in range(maxecho):
     # print(Route)
     # print(NewV)
     # 检查是否为八个客户点（一开始设置了八个：[[1, 2],[2, 1], [1, 3], [2, 4], [3, 1], [4, 2], [3, 4], [4, 3]]）
-    if len(np.unique(Route)) == client + vichels:
+    if len(np.unique(Route)) == client + 1:
         print(r, "Route found:", Route)
         Dis_r = CalcuDis(Route, Dis)
         Dis_all += [Dis_r]
@@ -247,7 +251,7 @@ for r in range(maxecho):
         # Plot(Route,Data)
         if Dis_r < Dis_best:
             Dis_best = Dis_r
-            Route_final = Route
+            Route_final = change2vrp(Route,nodeneedarray,cap)
     # V=V+2*(2*np.random.rand(N,N)-1)
     U = 0.002 * (2 * np.random.rand(N, N) - 1)
     V = 1 / N * (2 * np.random.rand(N, N) - 1)
